@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ───────────────────────────────────────
+//  USERS (khusus customer / buyer)
+// ───────────────────────────────────────
+model User {
+  user_id    Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  password   String
+  phone      String?
+  address    String?
+  created_at DateTime @default(now())
+
+  orders     Order[]
+
+  @@map("users")
+}
+
+// ───────────────────────────────────────
+//  EMPLOYEES (staff + admin)
+// ───────────────────────────────────────
+model Employee {
+  employee_id Int          @id @default(autoincrement())
+  name        String
+  email       String       @unique
+  password    String
+  phone       String?
+  role        EmployeeRole @default(STAFF)
+  is_active   Boolean      @default(true)
+  created_at  DateTime     @default(now())
+
+  handled_orders Order[]
+
+  @@map("employees")
+}
+
+enum EmployeeRole {
+  STAFF
+  ADMIN
+}
+
+// ───────────────────────────────────────
+//  CATEGORIES
+// ───────────────────────────────────────
+model Category {
+  category_id Int    @id @default(autoincrement())
+  name        String @unique
+  icon        String?
+
+  menu_items  MenuItem[]
+
+  @@map("categories")
+}
+
+// ───────────────────────────────────────
+//  MENU ITEMS
+// ───────────────────────────────────────
+model MenuItem {
+  menu_item_id Int      @id @default(autoincrement())
+  category_id  Int
+  name         String
+  description  String?
+  price        Float
+  image_url    String?
+  stock        Int      @default(0)
+  is_available Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  category     Category    @relation(fields: [category_id], references: [category_id])
+  order_items  OrderItem[]
+
+  @@map("menu_items")
+}
+
+// ───────────────────────────────────────
+//  ORDERS
+// ───────────────────────────────────────
+model Order {
+  order_id         Int           @id @default(autoincrement())
+  user_id          Int
+  employee_id      Int?
+  delivery_address String
+  delivery_note    String?
+  subtotal         Float
+  delivery_fee     Float         @default(10000)
+  total            Float
+  status           OrderStatus   @default(PENDING)
+  payment_method   PaymentMethod @default(COD)
+  created_at       DateTime      @default(now())
+  updated_at       DateTime      @updatedAt
+
+  user         User        @relation(fields: [user_id], references: [user_id])
+  employee     Employee?   @relation(fields: [employee_id], references: [employee_id])
+  order_items  OrderItem[]
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  ON_THE_WAY
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  TRANSFER
+}
+
+// ───────────────────────────────────────
+//  ORDER ITEMS
+// ───────────────────────────────────────
+model OrderItem {
+  order_item_id Int   @id @default(autoincrement())
+  order_id      Int
+  menu_item_id  Int
+  quantity      Int
+  unit_price    Float
+
+  order     Order    @relation(fields: [order_id], references: [order_id])
+  menu_item MenuItem @relation(fields: [menu_item_id], references: [menu_item_id])
+
+  @@map("order_items")
+}
