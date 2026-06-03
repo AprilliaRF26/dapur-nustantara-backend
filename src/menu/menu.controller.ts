@@ -6,7 +6,10 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { EmployeeRole } from '@prisma/client';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+
+@ApiBearerAuth('access-token')
 @Controller('menu')
 export class MenuController {
   constructor(private readonly menuService: MenuService) {}
