@@ -12,7 +12,11 @@ async function bootstrap() {
     transform: true,
   }));
   
-  app.enableCors();
+  app.enableCors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+});
 
   // Swagger setup
   const config = new DocumentBuilder()
