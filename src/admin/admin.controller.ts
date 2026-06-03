@@ -6,7 +6,12 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { EmployeeRole } from '@prisma/client';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@Controller('admin')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(EmployeeRole.ADMIN)
+@ApiBearerAuth('access-token')
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(EmployeeRole.ADMIN)

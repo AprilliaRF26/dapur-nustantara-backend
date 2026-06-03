@@ -23,7 +23,15 @@ async function bootstrap() {
     .setTitle('Dapur Nusantara API')
     .setDescription('API dokumentasi sistem pemesanan delivery Dapur Nusantara')
     .setVersion('1.0')
-    .addBearerAuth()
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'access-token',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
